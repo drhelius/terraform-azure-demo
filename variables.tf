@@ -23,3 +23,7 @@ variable "bootcamp_instances" {
   type    = "string"
   default = "2"
 }
+
+variable "bootcamp_admin_password" {
+  type    = "string"
+}
