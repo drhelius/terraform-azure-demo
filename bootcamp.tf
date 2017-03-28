@@ -141,4 +141,16 @@ resource "azurerm_virtual_machine" "demo" {
   os_profile_linux_config {
     disable_password_authentication = false
   }
+
+  provisioner "file" {
+    source      = "provision.sh"
+    destination = "/tmp/provision.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/provision.sh",
+      "/tmp/provision.sh",
+    ]
+  }
 }
