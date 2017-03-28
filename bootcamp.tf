@@ -58,12 +58,11 @@ resource "azurerm_lb" "demo" {
 }
 
 resource "azurerm_lb_rule" "demo" {
-  name                    = "bootcamp-lb-rule-80-80"
+  name                    = "bootcamp-lb-rule-80-8080"
   resource_group_name     = "${azurerm_resource_group.demo.name}"
   loadbalancer_id         = "${azurerm_lb.demo.id}"
   backend_address_pool_id = "${azurerm_lb_backend_address_pool.demo.id}"
   probe_id                = "${azurerm_lb_probe.demo.id}"
-
   protocol                       = "tcp"
   frontend_port                  = 80
   backend_port                   = 8080
@@ -71,7 +70,7 @@ resource "azurerm_lb_rule" "demo" {
 }
 
 resource "azurerm_lb_probe" "demo" {
-  name                = "bootcamp-lb-probe-80-up"
+  name                = "bootcamp-lb-probe-8080-up"
   loadbalancer_id     = "${azurerm_lb.demo.id}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
   protocol            = "Http"
@@ -136,21 +135,10 @@ resource "azurerm_virtual_machine" "demo" {
     computer_name  = "bootcamp-instance-${count.index}"
     admin_username = "bootcamp"
     admin_password = "${var.bootcamp_admin_password}"
+	custom_data    = "${base64encode(file("${path.module}/provision.sh"))}"
   }
 
   os_profile_linux_config {
     disable_password_authentication = false
-  }
-
-  provisioner "file" {
-    source      = "provision.sh"
-    destination = "/tmp/provision.sh"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/provision.sh",
-      "/tmp/provision.sh",
-    ]
   }
 }
