@@ -118,7 +118,7 @@ resource "azurerm_virtual_machine" "demo" {
 
   storage_os_disk {
     name          = "bootcamp-disk-${count.index}"
-    vhd_uri       = "${azurerm_storage_account.demo.primary_blob_endpoint}${element(azurerm_storage_container.demo.*.name, count.index)}/mydisk.vhd"
+    vhd_uri       = "${azurerm_storage_account.demo.primary_blob_endpoint}${element(azurerm_storage_container.demo.*.name, count.index)}/bootcamp.vhd"
     caching       = "ReadWrite"
     create_option = "FromImage"
   }
