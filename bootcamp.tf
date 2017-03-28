@@ -14,7 +14,6 @@ resource "azurerm_virtual_network" "demo" {
   name          = "bootcamp-virtual-network"
   address_space = ["10.0.0.0/16"]
   location      = "${var.azure_location}"
-
   resource_group_name = "${azurerm_resource_group.demo.name}"
 }
 
@@ -67,7 +66,7 @@ resource "azurerm_lb_rule" "demo" {
 
   protocol                       = "tcp"
   frontend_port                  = 80
-  backend_port                   = 80
+  backend_port                   = 8080
   frontend_ip_configuration_name = "default"
 }
 
@@ -77,13 +76,19 @@ resource "azurerm_lb_probe" "demo" {
   resource_group_name = "${azurerm_resource_group.demo.name}"
   protocol            = "Http"
   request_path        = "/"
-  port                = 80
+  port                = 8080
 }
 
 resource "azurerm_lb_backend_address_pool" "demo" {
   name                = "bootcamp-lb-pool"
   resource_group_name = "${azurerm_resource_group.demo.name}"
   loadbalancer_id     = "${azurerm_lb.demo.id}"
+}
+
+resource "azurerm_availability_set" "demo" {
+  name                = "bootcamp-availability-set"
+  location            = "${var.azure_location}"
+  resource_group_name = "${azurerm_resource_group.demo.name}"
 }
 
 resource "azurerm_storage_account" "demo" {
@@ -108,6 +113,7 @@ resource "azurerm_virtual_machine" "demo" {
   resource_group_name   = "${azurerm_resource_group.demo.name}"
   network_interface_ids = ["${element(azurerm_network_interface.demo.*.id, count.index)}"]
   vm_size               = "Standard_A0"
+  availability_set_id   = "${azurerm_availability_set.demo.id}"
 
   storage_image_reference {
     publisher = "Canonical"
@@ -128,8 +134,8 @@ resource "azurerm_virtual_machine" "demo" {
 
   os_profile {
     computer_name  = "bootcamp-instance-${count.index}"
-    admin_username = "demo"
-    admin_password = "Demo00Demo**Demo"
+    admin_username = "bootcamp"
+    admin_password = "${var.bootcamp_admin_password}"
   }
 
   os_profile_linux_config {
