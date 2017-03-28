@@ -1,3 +1,6 @@
 # Compiled files
 *.tfstate
 *.tfstate.backup
+
+# Sensitive data
+*.tfvars
