@@ -130,7 +130,6 @@ resource "azurerm_virtual_machine" "demo" {
     computer_name  = "bootcamp-instance-${count.index}"
     admin_username = "demo"
     admin_password = "Demo00Demo**Demo"
-#    custom_data    = "${base64encode(file("${path.module}/templates/install.sh"))}"
   }
 
   os_profile_linux_config {
