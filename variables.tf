@@ -8,7 +8,7 @@ variable "azure_client_secret" {
 
 variable "azure_location" {
   type    = "string"
-  default = "westeurope"
+  default = "West Europe"
 }
 
 variable "azure_subscription_id" {
