@@ -19,11 +19,11 @@ variable "azure_tenant_id" {
   type = "string"
 }
 
-variable "bootcamp_instances" {
+variable "demo_instances" {
   type    = "string"
   default = "2"
 }
 
-variable "bootcamp_admin_password" {
+variable "demo_admin_password" {
   type    = "string"
 }
