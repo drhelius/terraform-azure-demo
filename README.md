@@ -1,2 +1,2 @@
-# terraform-azure-bootcamp
-Demo for Terraform session at the Global Azure Bootcamp 2017
+# terraform-azure-demo
+Terraform demo for Azure
