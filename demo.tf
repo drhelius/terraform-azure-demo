@@ -6,34 +6,34 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "demo" {
-  name     = "bootcamp-terraform"
+  name     = "demo-terraform"
   location = "${var.azure_location}"
 }
 
 resource "azurerm_virtual_network" "demo" {
-  name          = "bootcamp-virtual-network"
+  name          = "demo-virtual-network"
   address_space = ["10.0.0.0/16"]
   location      = "${var.azure_location}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
 }
 
 resource "azurerm_subnet" "demo" {
-  name                 = "bootcamp-subnet"
+  name                 = "demo-subnet"
   resource_group_name  = "${azurerm_resource_group.demo.name}"
   virtual_network_name = "${azurerm_virtual_network.demo.name}"
   address_prefix       = "10.0.1.0/24"
 }
 
 resource "azurerm_public_ip" "demo" {
-  name                         = "bootcamp-public-ip"
+  name                         = "demo-public-ip"
   location                     = "${var.azure_location}"
   resource_group_name          = "${azurerm_resource_group.demo.name}"
   public_ip_address_allocation = "static"
 }
 
 resource "azurerm_network_interface" "demo" {
-  count               = "${var.bootcamp_instances}"
-  name                = "bootcamp-interface-${count.index}"
+  count               = "${var.demo_instances}"
+  name                = "demo-interface-${count.index}"
   location            = "${var.azure_location}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
 
@@ -46,7 +46,7 @@ resource "azurerm_network_interface" "demo" {
 }
 
 resource "azurerm_lb" "demo" {
-  name                = "bootcamp-lb"
+  name                = "demo-lb"
   location            = "${var.azure_location}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
 
@@ -58,7 +58,7 @@ resource "azurerm_lb" "demo" {
 }
 
 resource "azurerm_lb_rule" "demo" {
-  name                    = "bootcamp-lb-rule-80-8080"
+  name                    = "demo-lb-rule-80-8080"
   resource_group_name     = "${azurerm_resource_group.demo.name}"
   loadbalancer_id         = "${azurerm_lb.demo.id}"
   backend_address_pool_id = "${azurerm_lb_backend_address_pool.demo.id}"
@@ -70,7 +70,7 @@ resource "azurerm_lb_rule" "demo" {
 }
 
 resource "azurerm_lb_probe" "demo" {
-  name                = "bootcamp-lb-probe-8080-up"
+  name                = "demo-lb-probe-8080-up"
   loadbalancer_id     = "${azurerm_lb.demo.id}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
   protocol            = "Http"
@@ -79,35 +79,35 @@ resource "azurerm_lb_probe" "demo" {
 }
 
 resource "azurerm_lb_backend_address_pool" "demo" {
-  name                = "bootcamp-lb-pool"
+  name                = "demo-lb-pool"
   resource_group_name = "${azurerm_resource_group.demo.name}"
   loadbalancer_id     = "${azurerm_lb.demo.id}"
 }
 
 resource "azurerm_availability_set" "demo" {
-  name                = "bootcamp-availability-set"
+  name                = "demo-availability-set"
   location            = "${var.azure_location}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
 }
 
 resource "azurerm_storage_account" "demo" {
-  name                = "bootcamp2017storage"
+  name                = "demoterraformstorage"
   resource_group_name = "${azurerm_resource_group.demo.name}"
   location            = "${var.azure_location}"
   account_type        = "Standard_LRS"
 }
 
 resource "azurerm_storage_container" "demo" {
-  count                 = "${var.bootcamp_instances}"
-  name                  = "bootcamp-storage-container-${count.index}"
+  count                 = "${var.demo_instances}"
+  name                  = "demo-storage-container-${count.index}"
   resource_group_name   = "${azurerm_resource_group.demo.name}"
   storage_account_name  = "${azurerm_storage_account.demo.name}"
   container_access_type = "private"
 }
 
 resource "azurerm_virtual_machine" "demo" {
-  count                 = "${var.bootcamp_instances}"
-  name                  = "bootcamp-instance-${count.index}"
+  count                 = "${var.demo_instances}"
+  name                  = "demo-instance-${count.index}"
   location              = "${var.azure_location}"
   resource_group_name   = "${azurerm_resource_group.demo.name}"
   network_interface_ids = ["${element(azurerm_network_interface.demo.*.id, count.index)}"]
@@ -122,8 +122,8 @@ resource "azurerm_virtual_machine" "demo" {
   }
 
   storage_os_disk {
-    name          = "bootcamp-disk-${count.index}"
-    vhd_uri       = "${azurerm_storage_account.demo.primary_blob_endpoint}${element(azurerm_storage_container.demo.*.name, count.index)}/bootcamp.vhd"
+    name          = "demo-disk-${count.index}"
+    vhd_uri       = "${azurerm_storage_account.demo.primary_blob_endpoint}${element(azurerm_storage_container.demo.*.name, count.index)}/demo.vhd"
     caching       = "ReadWrite"
     create_option = "FromImage"
   }
@@ -132,9 +132,9 @@ resource "azurerm_virtual_machine" "demo" {
   delete_data_disks_on_termination = true
 
   os_profile {
-    computer_name  = "bootcamp-instance-${count.index}"
-    admin_username = "bootcamp"
-    admin_password = "${var.bootcamp_admin_password}"
+    computer_name  = "demo-instance-${count.index}"
+    admin_username = "demo"
+    admin_password = "${var.demo_admin_password}"
 	custom_data    = "${base64encode(file("${path.module}/provision.sh"))}"
   }
 
