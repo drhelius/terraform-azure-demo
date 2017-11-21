@@ -4,3 +4,6 @@
 
 # Sensitive data
 *.tfvars
+/.idea/
+/.terraform/
+/.terraform.tfstate.lock.info

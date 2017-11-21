@@ -90,11 +90,21 @@ resource "azurerm_availability_set" "demo" {
   resource_group_name = "${azurerm_resource_group.demo.name}"
 }
 
+resource "random_id" "storage_account_name" {
+  keepers = {
+    # Generate a new ID only when a new resource group is defined
+    resource_group = "${azurerm_resource_group.demo.name}"
+  }
+
+  byte_length = 8
+}
+
 resource "azurerm_storage_account" "demo" {
-  name                = "demoterraformstorage"
-  resource_group_name = "${azurerm_resource_group.demo.name}"
-  location            = "${var.azure_location}"
-  account_type        = "Standard_LRS"
+  name                      = "diag${random_id.storage_account_name.hex}"
+  resource_group_name       = "${azurerm_resource_group.demo.name}"
+  location                  = "${var.azure_location}"
+  account_tier              = "Standard"
+  account_replication_type  = "LRS"
 }
 
 resource "azurerm_storage_container" "demo" {
@@ -103,6 +113,18 @@ resource "azurerm_storage_container" "demo" {
   resource_group_name   = "${azurerm_resource_group.demo.name}"
   storage_account_name  = "${azurerm_storage_account.demo.name}"
   container_access_type = "private"
+}
+
+resource "random_string" "vm_password" {
+  length  = 16
+  special = true
+  upper   = true
+  lower   = true
+
+  keepers = {
+    # Generate a new ID only when a new resource group is defined
+    resource_group = "${azurerm_resource_group.demo.name}"
+  }
 }
 
 resource "azurerm_virtual_machine" "demo" {
@@ -132,10 +154,10 @@ resource "azurerm_virtual_machine" "demo" {
   delete_data_disks_on_termination = true
 
   os_profile {
-    computer_name  = "demo-instance-${count.index}"
-    admin_username = "demo"
-    admin_password = "${var.demo_admin_password}"
-	custom_data    = "${base64encode(file("${path.module}/provision.sh"))}"
+    computer_name   = "demo-instance-${count.index}"
+    admin_username  = "demo"
+    admin_password  = "${random_string.vm_password.result}"
+    custom_data     = "${base64encode(file("${path.module}/provision.sh"))}"
   }
 
   os_profile_linux_config {
