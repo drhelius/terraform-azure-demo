@@ -23,7 +23,3 @@ variable "demo_instances" {
   type    = "string"
   default = "2"
 }
-
-variable "demo_admin_password" {
-  type    = "string"
-}
